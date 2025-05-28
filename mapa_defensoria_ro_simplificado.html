@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Monitoramento - Defensoria Pública de Rondônia</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        .legend {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 180px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        }
+        .legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .info-window {
+            width: 250px;
+            font-family: Arial, sans-serif;
+        }
+        .info-window h4 {
+            margin-bottom: 10px;
+        }
+        .info-window table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .info-window td {
+            padding: 5px;
+        }
+        .info-window td:first-child {
+            font-weight: bold;
+        }
+        .header {
+            background-color: #006400;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        #map-container {
+            position: absolute;
+            top: 50px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Monitoramento de Obras - Defensoria Pública de Rondônia</h1>
+    </div>
+    <div id="map-container">
+        <div id="map"></div>
+    </div>
+    
+    <div class="legend">
+        <h4>Legenda</h4>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: #808080;"></div>
+            <span>Não iniciada</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: #FFA500;"></div>
+            <span>Em andamento</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: #008000;"></div>
+            <span>Concluída</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: #FF0000;"></div>
+            <span>Atrasada</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: #0000FF;"></div>
+            <span>Em licitação</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: #800080;"></div>
+            <span>Paralisada</span>
+        </div>
+    </div>
+
+    <script>
+        // Este script será substituído pelo código gerado pelo Google Sheets
+        // quando a planilha for publicada e incorporada no Google Sites
+    </script>
+</body>
+</html>

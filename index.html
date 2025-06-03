@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Monitoramento - Defensoria P?blica de Rond?nia</title>
+    <title>Mapa de Monitoramento - Defensoria Pública de Rondônia</title>
     <style>
         body, html {
             margin: 0;
@@ -12,139 +12,103 @@
             width: 100%;
             font-family: Arial, sans-serif;
         }
+        #header {
+            background-color: #006400;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
         #map {
-            height: 100%;
+            height: calc(100% - 50px);
             width: 100%;
         }
         .legend {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 180px;
+            bottom: 20px;
+            right: 20px;
             background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 5px;
             padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
             z-index: 1000;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.4 );
-        }
-        .legend h4 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
         }
         .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
+            margin: 5px 0;
         }
         .color-box {
+            display: inline-block;
             width: 15px;
             height: 15px;
+            margin-right: 5px;
             border-radius: 50%;
-            margin-right: 10px;
         }
-        .info-window {
-            width: 250px;
-            font-family: Arial, sans-serif;
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 2000;
         }
-        .info-window h4 {
-            margin-bottom: 10px;
-        }
-        .info-window table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .info-window td {
-            padding: 5px;
-        }
-        .info-window td:first-child {
-            font-weight: bold;
-        }
-        .header {
+        .update-button {
+            position: fixed;
+            top: 60px;
+            right: 10px;
             background-color: #006400;
             color: white;
-            padding: 10px 20px;
-            text-align: center;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
             z-index: 1000;
         }
-        .header h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-        #map-container {
-            position: absolute;
-            top: 50px;
-            bottom: 0;
-            left: 0;
-            right: 0;
+        .update-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background-color: white;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Monitoramento de Obras - Defensoria P?blica de Rond?nia</h1>
-    </div>
-    <div id="map-container">
-        <div id="map"></div>
-    </div>
+    <div id="header">Monitoramento de Obras - Defensoria Pública de Rondônia</div>
+    <div id="map"></div>
+    <div id="loading" class="loading">Carregando dados...</div>
+    <button id="update-button" class="update-button">Atualizar Dados</button>
+    <div id="update-info" class="update-info"></div>
     
     <div class="legend">
-        <h4>Legenda</h4>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: #808080;"></div>
-            <span>N?o iniciada</span>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: #FFA500;"></div>
-            <span>Em andamento</span>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: #008000;"></div>
-            <span>Conclu?da</span>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: #FF0000;"></div>
-            <span>Atrasada</span>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: #0000FF;"></div>
-            <span>Em licita??o</span>
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background-color: #800080;"></div>
-            <span>Paralisada</span>
-        </div>
+        <div><strong>Legenda</strong></div>
+        <div class="legend-item"><span class="color-box" style="background-color: #808080;"></span> Não iniciada</div>
+        <div class="legend-item"><span class="color-box" style="background-color: #FFA500;"></span> Em andamento</div>
+        <div class="legend-item"><span class="color-box" style="background-color: #008000;"></span> Concluída</div>
+        <div class="legend-item"><span class="color-box" style="background-color: #FF0000;"></span> Atrasada</div>
+        <div class="legend-item"><span class="color-box" style="background-color: #0000FF;"></span> Em licitação</div>
+        <div class="legend-item"><span class="color-box" style="background-color: #800080;"></span> Paralisada</div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Carregando bibliotecas externas -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <script>
-        
-        window.onload = function( ) {
+        // Esperar o documento carregar completamente
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL da planilha publicada em formato CSV
+            const planilhaURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTE6-4Oq_J9VoXih-jwhHo5WY_vkh1e2cposleuOimY3XBfcNhFQM4R4HpJoxtRVZdAymc-20afbNhG/pub?output=csv";
             
-            const municipios = [
-                <% for (let i = 0; i < dados.length; i++) { %>
-                {
-                    nome: "<%= dados[i].municipio %>",
-                    status: "<%= dados[i].status || 'N?o iniciada' %>",
-                    tipoServico: "<%= dados[i].tipoServico || '' %>",
-                    dataInicio: "<%= dados[i].dataInicio || '' %>",
-                    previsaoTermino: "<%= dados[i].previsaoTermino || '' %>",
-                    responsavel: "<%= dados[i].responsavel || '' %>",
-                    observacoes: "<%= dados[i].observacoes || '' %>"
-                }<% if (i < dados.length - 1) { %>,<% } %>
-                <% } %>
-            ];
-
-            
+            // Coordenadas aproximadas dos municípios de Rondônia
             const coordenadasMunicipios = {
                 "Porto Velho": [-8.7619, -63.9004],
-                "Ji-Paran?": [-10.8777, -61.9322],
+                "Ji-Paraná": [-10.8777, -61.9322],
                 "Ariquemes": [-9.9135, -63.0407],
                 "Vilhena": [-12.7502, -60.1488],
                 "Cacoal": [-11.4343, -61.4562],
@@ -152,113 +116,211 @@
                 "Rolim de Moura": [-11.7163, -61.7812],
                 "Ouro Preto do Oeste": [-10.7167, -62.2167],
                 "Pimenta Bueno": [-11.6716, -61.1983],
-                "Guajar?-Mirim": [-10.7889, -65.3294],
+                "Guajará-Mirim": [-10.7889, -65.3294],
                 "Buritis": [-10.2067, -63.8324],
                 "Machadinho D'Oeste": [-9.4428, -61.9819],
-                "Nova Mamor?": [-10.4078, -65.3346],
-                "Espig?o D'Oeste": [-11.5266, -61.0239],
+                "Nova Mamoré": [-10.4078, -65.3346],
+                "Espigão D'Oeste": [-11.5266, -61.0239],
                 "Alta Floresta D'Oeste": [-11.9283, -61.9953],
                 "Alvorada D'Oeste": [-11.3463, -62.2847],
-                "Presidente M?dici": [-11.1667, -61.9],
-                "S?o Miguel do Guapor?": [-11.6953, -62.7192],
-                "Nova Brasil?ndia D'Oeste": [-11.7247, -62.3108],
+                "Presidente Médici": [-11.1667, -61.9],
+                "São Miguel do Guaporé": [-11.6953, -62.7192],
+                "Nova Brasilândia D'Oeste": [-11.7247, -62.3108],
                 "Colorado do Oeste": [-13.1167, -60.5833],
                 "Cerejeiras": [-13.1872, -60.8206],
                 "Costa Marques": [-12.4367, -64.228],
                 "Santa Luzia D'Oeste": [-11.9075, -61.7778],
-                "S?o Francisco do Guapor?": [-12.0525, -63.568]
+                "São Francisco do Guaporé": [-12.0525, -63.568]
             };
 
-            
+            // Mapear status para cores
             const statusCores = {
-                "N?o iniciada": "#808080",
+                "Não iniciada": "#808080",
                 "Em andamento": "#FFA500",
-                "Conclu?da": "#008000",
+                "Concluída": "#008000",
                 "Atrasada": "#FF0000",
-                "Em licita??o": "#0000FF",
+                "Em licitação": "#0000FF",
                 "Paralisada": "#800080"
             };
 
-            try {
-                
-                const map = L.map('map').setView([-10.83, -63.34], 7);
+            // Inicializar o mapa
+            const map = L.map('map').setView([-10.83, -63.34], 7);
 
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                } ).addTo(map);
+            // Adicionar camada de mapa base
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
 
-                console.log("Mapa inicializado");
-                console.log("N?mero de munic?pios:", municipios.length);
+            // Variável para armazenar os marcadores
+            let markers = [];
 
+            // Função para carregar os dados da planilha
+            function carregarDados() {
+                document.getElementById('loading').style.display = 'block';
                 
-                municipios.forEach(municipio => {
+                // Adicionar timestamp para evitar cache
+                const urlComTimestamp = planilhaURL + '&timestamp=' + new Date().getTime();
+                
+                // Fazer requisição para a planilha
+                fetch(urlComTimestamp)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erro ao carregar dados da planilha');
+                        }
+                        return response.text();
+                    })
+                    .then(csv => {
+                        const dados = parseCSV(csv);
+                        processarDados(dados);
+                        
+                        // Atualizar informação de última atualização
+                        const agora = new Date();
+                        document.getElementById('update-info').textContent = 'Última atualização: ' + 
+                            agora.toLocaleDateString() + ' ' + agora.toLocaleTimeString();
+                        
+                        document.getElementById('loading').style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        document.getElementById('loading').textContent = 'Erro ao carregar dados. Tente novamente.';
+                        
+                        // Carregar dados de exemplo como fallback
+                        setTimeout(() => {
+                            carregarDadosExemplo();
+                            document.getElementById('loading').style.display = 'none';
+                        }, 1000);
+                    });
+            }
+
+            // Função simples para analisar CSV
+            function parseCSV(csv) {
+                const lines = csv.split('\n');
+                const headers = lines[0].split(',');
+                
+                const result = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === '') continue;
                     
-                    const coordenadas = coordenadasMunicipios[municipio.nome];
+                    const obj = {};
+                    const currentLine = lines[i].split(',');
                     
-                    console.log("Processando munic?pio:", municipio.nome);
-                    console.log("Coordenadas:", coordenadas);
+                    for (let j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = currentLine[j] ? currentLine[j].trim() : '';
+                    }
+                    
+                    result.push(obj);
+                }
+                
+                return result;
+            }
+
+            // Função para processar os dados e adicionar marcadores
+            function processarDados(dados) {
+                // Limpar marcadores existentes
+                markers.forEach(marker => map.removeLayer(marker));
+                markers = [];
+                
+                // Adicionar novos marcadores
+                dados.forEach(municipio => {
+                    const nomeMunicipio = municipio['Município'];
+                    const coordenadas = coordenadasMunicipios[nomeMunicipio];
                     
                     if (coordenadas) {
-                        
+                        // Criar conteúdo do popup
                         const popupContent = `
-                            <div class="info-window">
-                                <h4>${municipio.nome}</h4>
-                                <table>
-                                    <tr>
-                                        <td>Status:</td>
-                                        <td>${municipio.status}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tipo de Servi?o:</td>
-                                        <td>${municipio.tipoServico}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Data de In?cio:</td>
-                                        <td>${municipio.dataInicio}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Previs?o de T?rmino:</td>
-                                        <td>${municipio.previsaoTermino}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Respons?vel:</td>
-                                        <td>${municipio.responsavel}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Observa??es:</td>
-                                        <td>${municipio.observacoes}</td>
-                                    </tr>
-                                </table>
+                            <div style="width: 200px;">
+                                <h3>${nomeMunicipio}</h3>
+                                <p><strong>Status:</strong> ${municipio['Status de Obra'] || 'Não iniciada'}</p>
+                                <p><strong>Tipo de Serviço:</strong> ${municipio['Tipo de Serviço'] || '-'}</p>
+                                <p><strong>Data de Início:</strong> ${municipio['Data de Início'] || '-'}</p>
+                                <p><strong>Previsão de Término:</strong> ${municipio['Previsão de Término'] || '-'}</p>
+                                <p><strong>Responsável:</strong> ${municipio['Responsável'] || '-'}</p>
+                                <p><strong>Observações:</strong> ${municipio['Observações'] || '-'}</p>
                             </div>
                         `;
                         
                         // Criar marcador
                         const marker = L.circleMarker(coordenadas, {
                             radius: 8,
-                            fillColor: statusCores[municipio.status] || "#808080",
+                            fillColor: statusCores[municipio['Status de Obra']] || "#808080",
                             color: "#333",
                             weight: 1,
                             opacity: 1,
                             fillOpacity: 0.7
                         }).addTo(map);
                         
-                        
+                        // Adicionar popup
                         marker.bindPopup(popupContent);
                         
+                        // Adicionar tooltip
+                        marker.bindTooltip(nomeMunicipio);
                         
-                        marker.bindTooltip(municipio.nome);
-                        
-                        console.log("Marcador adicionado para:", municipio.nome);
-                    } else {
-                        console.log("Coordenadas n?o encontradas para:", municipio.nome);
+                        // Armazenar marcador
+                        markers.push(marker);
                     }
                 });
-            } catch (error) {
-                console.error("Erro ao inicializar o mapa:", error);
-                document.body.innerHTML += `<div style="color: red; position: fixed; top: 60px; left: 10px; z-index: 2000; background: white; padding: 10px;">Erro ao carregar o mapa: ${error.message}</div>`;
             }
-        };
+
+            // Função para carregar dados de exemplo como fallback
+            function carregarDadosExemplo() {
+                const dadosExemplo = [
+                    {
+                        "Município": "Porto Velho",
+                        "Status de Obra": "Não iniciada",
+                        "Tipo de Serviço": "",
+                        "Data de Início": "",
+                        "Previsão de Término": "",
+                        "Responsável": "",
+                        "Observações": ""
+                    },
+                    {
+                        "Município": "Ji-Paraná",
+                        "Status de Obra": "Em andamento",
+                        "Tipo de Serviço": "Reforma",
+                        "Data de Início": "01/05/2025",
+                        "Previsão de Término": "01/08/2025",
+                        "Responsável": "Eng. Silva",
+                        "Observações": "Obra em fase inicial"
+                    },
+                    {
+                        "Município": "Ariquemes",
+                        "Status de Obra": "Concluída",
+                        "Tipo de Serviço": "Manutenção elétrica",
+                        "Data de Início": "01/01/2025",
+                        "Previsão de Término": "01/03/2025",
+                        "Responsável": "Eng. Santos",
+                        "Observações": "Finalizada dentro do prazo"
+                    },
+                    {
+                        "Município": "Vilhena",
+                        "Status de Obra": "Atrasada",
+                        "Tipo de Serviço": "Construção",
+                        "Data de Início": "01/02/2025",
+                        "Previsão de Término": "01/04/2025",
+                        "Responsável": "Eng. Oliveira",
+                        "Observações": "Atraso devido a problemas com materiais"
+                    },
+                    {
+                        "Município": "Cacoal",
+                        "Status de Obra": "Em licitação",
+                        "Tipo de Serviço": "Ampliação",
+                        "Data de Início": "",
+                        "Previsão de Término": "",
+                        "Responsável": "Setor de Licitações",
+                        "Observações": "Processo em andamento"
+                    }
+                ];
+                
+                processarDados(dadosExemplo);
+                document.getElementById('update-info').textContent = 'Exibindo dados de exemplo (falha na conexão)';
+            }
+
+            // Configurar botão de atualização
+            document.getElementById('update-button').addEventListener('click', carregarDados);
+            
+            // Carregar dados inicialmente
+            carregarDados();
+        });
     </script>
 </body>
 </html>
